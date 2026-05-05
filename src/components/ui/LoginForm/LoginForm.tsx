@@ -27,6 +27,7 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { AuthService } from "@/lib/AuthService"
 
 const formSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -54,8 +55,7 @@ export function LoginForm() {
 
         mutationFn: LoginAction,
         onSuccess: (data) => {
-            localStorage.setItem("access_token", data.access_token);
-            localStorage.setItem("refresh_token", data.refresh_token);
+            AuthService.setSession(data);
             toast.success("Logged in successfully");
             router.push("/projects");
         },
