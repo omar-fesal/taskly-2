@@ -3,6 +3,7 @@ import React from 'react'
 import { Button } from '../button'
 import { LucideIcon, Plus, UserPlus } from 'lucide-react'
 import { useRouter } from "next/navigation";
+import InviteMemberForm from '../InviteMemberForm/InviteMemberForm';
 
 interface ProjectHeaderProps {
     title: string;
@@ -10,6 +11,8 @@ interface ProjectHeaderProps {
     buttonText?: string;
     redirectTo?: string;
     icon?: "userPlus" | "plus";
+    action?: "redirect" | "dialog";
+    onDialogOpen?: () => void;
 }
 
 export default function ProjectHeader({
@@ -17,7 +20,9 @@ export default function ProjectHeader({
     title,
     description,
     buttonText = "Create New Project",
-    redirectTo = "/createproject"
+    redirectTo = "/createproject",
+    action = "redirect",
+
 }: ProjectHeaderProps) {
 
 
@@ -46,12 +51,19 @@ export default function ProjectHeader({
             </div>
 
             <div>
-                <Button
-                    onClick={() => router.push(redirectTo)}
-                    className="w-full h-12 rounded-sm bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
-                >
-                    <Icon />{buttonText}
-                </Button>
+
+                {action === "dialog" ? (
+                    <InviteMemberForm />
+                ) : (
+                    <Button
+                        onClick={() => router.push(redirectTo)}
+                        className="w-full h-12 rounded-sm bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
+                    >
+                        <Icon />
+                        {buttonText}
+                    </Button>
+                )}
+
             </div>
         </div>
     )

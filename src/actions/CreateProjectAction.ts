@@ -4,7 +4,7 @@ interface CreateProjectProps {
     name: string;
     description: string;
 }
-export async function CreateProjectAction(data: CreateProjectProps) {
+export default async function CreateProjectAction(data: CreateProjectProps) {
     try {
         const resp = await AxiosInstance.post('/rest/v1/projects', {
             name: data.name,

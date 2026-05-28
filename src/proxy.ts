@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from "./lib/AuthService";
 
-export function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
 	const { pathname } = req.nextUrl;
 
 	const accessToken = req.cookies.get(ACCESS_TOKEN_KEY)?.value;
@@ -17,7 +17,7 @@ export function middleware(req: NextRequest) {
 		if (!isAuth) {
 			return NextResponse.redirect(new URL("/login", req.url));
 		} else {
-			return NextResponse.redirect(new URL("/dashboard", req.url));
+			return NextResponse.redirect(new URL("/projects", req.url));
 		}
 	}
 	if (!isAuth && !isAuthPage) {
@@ -27,7 +27,7 @@ export function middleware(req: NextRequest) {
 		return NextResponse.redirect(new URL("/login", req.url));
 	}
 	if (isAuth && isAuthPage) {
-		return NextResponse.redirect(new URL("/dashboard", req.url));
+		return NextResponse.redirect(new URL("/projects", req.url));
 	}
 
 	return NextResponse.next();

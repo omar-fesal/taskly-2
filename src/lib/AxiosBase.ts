@@ -11,7 +11,7 @@ const AxiosInstance = axios.create({
 });
 
 AxiosInstance.interceptors.request.use((config) => {
-	const token = AuthService.getRefreshToken();
+	const token = AuthService.getAccessToken();
 
 	config.headers = config.headers || {};
 

@@ -1,11 +1,10 @@
 "use client"
 
-import * as React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "react-hot-toast"
 import * as z from "zod"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,7 +17,6 @@ import {
 } from "@/components/ui/card"
 import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -30,37 +28,50 @@ import {
     InputGroupText,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { useMutation } from "@tanstack/react-query"
-import CreateProjectAction from "@/actions/CreateProjectAction"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import EditProjectAction from "@/actions/EditProjectAction"
+import GetProjectById from "@/actions/GetProjectById"
+import { Loader2 } from "lucide-react"
 
 
 const formSchema = z.object({
     name: z
         .string()
-        .min(5, "Bug title must be at least 5 characters.")
-        .max(32, "Bug title must be at most 32 characters."),
+        .min(5, "Project name must be at least 5 characters.")
+        .max(32, "Project name must be at most 32 characters."),
     description: z
         .string()
-
 })
 
-export function CreateProjectForm() {
+interface EditProjectFormProps {
+    projectId: string;
+}
+
+export function EditProjectForm({ projectId }: EditProjectFormProps) {
     const router = useRouter();
+
+    const { data: project, isLoading } = useQuery({
+        queryKey: ["project", projectId],
+        queryFn: () => GetProjectById(projectId),
+    });
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: "",
-            description: "",
+        values: {
+            name: project?.name || "",
+            description: project?.description || "",
         },
     })
 
-    const CreateProjectMutate = useMutation({
-        mutationFn: CreateProjectAction,
+    const EditProjectMutate = useMutation({
+        mutationFn: EditProjectAction,
         onSuccess: () => {
-            toast.success("crate post successfuly");
+            toast.success("Project updated successfully");
+            form.reset({
+                name: "",
+                description: "",
+            });
             router.push("/projects")
-
         },
         onError: (error: any) => {
             toast.error(error?.message || "Something went wrong");
@@ -68,19 +79,31 @@ export function CreateProjectForm() {
     })
 
     function onSubmit(data: z.infer<typeof formSchema>) {
-        CreateProjectMutate.mutate(data)
+        EditProjectMutate.mutate({
+            id: projectId,
+            name: data.name,
+            description: data.description,
+        })
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-[50vh]">
+                <Loader2 className="w-10 h-10 animate-spin text-slate-500" />
+            </div>
+        )
     }
 
     return (
-        <Card className="w-2xl ">
+        <Card className="w-2xl">
             <CardHeader className="border-b">
-                <CardTitle className="font-main font-semibold text-2xl">Initialize New Project</CardTitle>
+                <CardTitle className="font-main font-semibold text-2xl">Edit Project</CardTitle>
                 <CardDescription className="font-main text-[14px] text-[#4F5F7B]">
-                    Define the scope and foundational details of your project.
+                    Update the details of your project.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
+                <form id="edit-project-form" onSubmit={form.handleSubmit(onSubmit)}>
                     <FieldGroup>
                         <Controller
                             name="name"
@@ -88,14 +111,14 @@ export function CreateProjectForm() {
                             render={({ field, fieldState }) => (
                                 <Field className="gap-2" data-invalid={fieldState.invalid}>
                                     <FieldLabel
-                                        htmlFor="task-text"
+                                        htmlFor="project-name"
                                         className="font-main text-[11px] font-bold text-[#4F5F7B]"
                                     >
                                         Name
                                     </FieldLabel>
                                     <Input
                                         {...field}
-                                        id="task-text"
+                                        id="project-name"
                                         type="text"
                                         aria-invalid={fieldState.invalid}
                                         placeholder="Project title"
@@ -113,26 +136,27 @@ export function CreateProjectForm() {
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <FieldLabel htmlFor="form-rhf-demo-description"
-                                        className="font-main text-[11px] font-bold  text-[#4F5F7B]">
+                                    <FieldLabel
+                                        htmlFor="project-description"
+                                        className="font-main text-[11px] font-bold text-[#4F5F7B]"
+                                    >
                                         Description
                                     </FieldLabel>
                                     <InputGroup>
                                         <InputGroupTextarea
                                             {...field}
-                                            id="form-rhf-demo-description"
-                                            placeholder="I'm having an issue with the login button on mobile."
+                                            id="project-description"
+                                            placeholder="Project description"
                                             rows={12}
-                                            className="min-h-30 resize-none bg-[#D7E2FF]  "
+                                            className="min-h-30 resize-none bg-[#D7E2FF]"
                                             aria-invalid={fieldState.invalid}
                                         />
                                         <InputGroupAddon align="block-end" className="bg-white border-0 mt-1">
-                                            <InputGroupText className="tabular-nums ">
+                                            <InputGroupText className="tabular-nums">
                                                 {field.value.length}/500 characters
                                             </InputGroupText>
                                         </InputGroupAddon>
                                     </InputGroup>
-
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]} />
                                     )}
@@ -148,15 +172,16 @@ export function CreateProjectForm() {
                         onClick={() => router.push('/projects')}
                         className="w-auto px-10 h-12 rounded-sm bg-white font-main font-bold text-[#4F5F7B] hover:bg-white"
                     >
-                        Back</Button>
+                        Back
+                    </Button>
 
                     <Button
                         type="submit"
-                        form="form-rhf-demo"
-                        disabled={CreateProjectMutate.isPending}
+                        form="edit-project-form"
+                        disabled={EditProjectMutate.isPending}
                         className="w-auto px-10 h-12 rounded-sm bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
                     >
-                        {CreateProjectMutate.isPending ? "Creating..." : "Submit"}
+                        {EditProjectMutate.isPending ? "Updating..." : "Update"}
                     </Button>
                 </Field>
             </CardFooter>
