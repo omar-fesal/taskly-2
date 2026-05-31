@@ -13,10 +13,12 @@ import { Input } from "@/components/ui/input";
 
 import {
     Calendar,
+    ChevronLeft,
+    ChevronRight,
     MoreHorizontal,
     Plus,
     Search,
-    UserPen
+    UserPen,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -24,6 +26,8 @@ import Link from "next/link";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 
@@ -35,6 +39,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import CreateEpicsForm from "@/components/ui/CreateEpicsForm/CreateEpicsForm";
+import EpicDetailsDialog, {
+    type EpicData,
+} from "@/components/ui/EpicDetailsDialog/EpicDetailsDialog";
 
 import {
     useMutation,
@@ -47,207 +54,307 @@ import DeleteEpic from "@/actions/DeleteEpicsAction";
 import { useParams } from "next/navigation";
 import GetEpicsCardAction from "@/actions/GetEpicsCard";
 import GetMemberAction from "@/actions/GetMemberAction";
+import GetProjectTaskAction from "@/actions/GetProjectTaskAction";
+import GetProjectById from "@/actions/GetProjectById";
+import { useMemo, useState } from "react";
 
+const PAGE_SIZE = 6;
+
+interface TaskItem {
+    id: string;
+    epic_id?: string;
+    title: string;
+    status?: string;
+    assignee?: { name?: string };
+    assignee_name?: string;
+    due_date?: string;
+}
 
 export default function ProjectDetails() {
     const params = useParams();
     const projectid = params?.projectid as string;
     const queryClient = useQueryClient();
+    const [page, setPage] = useState(1);
+    const [selectedEpic, setSelectedEpic] = useState<EpicData | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
+
+    // Get Project
+    const { data: project } = useQuery({
+        queryKey: ["project", projectid],
+        queryFn: () => GetProjectById(projectid),
+        enabled: !!projectid,
+    });
 
     // Get Epics
-    const { data = [] } = useQuery({
+    const { data = [] } = useQuery<EpicData[]>({
         queryKey: ["epics", projectid],
-
         queryFn: () => GetEpicsCardAction(projectid as string)
     });
 
-    // // Get Members
+    // Get Project Tasks (fetched lazily on Task Details click)
+    const { data: projectTasks = [] } = useQuery<TaskItem[]>({
+        queryKey: ["project_tasks", projectid],
+        queryFn: () => GetProjectTaskAction(projectid),
+        enabled: detailsOpen,
+    });
+
+    // Get Members
     const { data: members = [] } = useQuery({
         queryKey: ["members", projectid],
-
         queryFn: () => GetMemberAction(projectid as string)
     });
 
     // Delete Mutation
     const deleteMutation = useMutation({
         mutationFn: DeleteEpic,
-
         onSuccess: () => {
             toast.success("Epic deleted successfully");
-
             queryClient.invalidateQueries({
                 queryKey: ["epics", projectid]
             });
         },
-
         onError: () => {
             toast.error("Failed to delete epic");
         }
     });
 
+    const total = data.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    const pageData = useMemo(() => {
+        const start = (page - 1) * PAGE_SIZE;
+        return data.slice(start, start + PAGE_SIZE);
+    }, [data, page]);
+
     return (
-        <>
-            <div className="px-4 pt-4 sm:px-5 sm:pt-5">
+        <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+            {/* Breadcrumb */}
+            <div className="px-4 pt-4 sm:px-6 sm:pt-5">
                 <Link
                     href={'/projects'}
-                    className='font-main font-bold text-[12px] text-[#43465499]'
+                    className="font-main font-bold text-[12px] text-[#43465499] hover:text-[#003D9B]"
                 >
-                    PROJECTS &gt;
+                    PROJECTS
                 </Link>
-
-                <span className='font-main font-bold text-[12px] text-[#43465499]'>
-                    PROJECT NAME &gt;
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    {' > '}
                 </span>
-
-                <span className='font-main font-bold text-[12px] text-[#003D9B]'>
+                <span className="font-main font-bold text-[12px] text-[#43465499] uppercase">
+                    {project?.name ?? "PROJECT NAME"}
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    {' > '}
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#003D9B]">
                     EPICS
                 </span>
             </div>
 
-            <div className='flex flex-col sm:flex-row sm:justify-between gap-4 p-4 sm:p-5'>
-
-                <div className='flex flex-col'>
-                    <h2 className='font-main font-semibold text-[22px] sm:text-[30px] text-[#041B3C]'>
-                        Project Epics
-                    </h2>
-                </div>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
+                <h2 className="font-main font-semibold text-[24px] sm:text-[30px] text-[#041B3C]">
+                    Project Epics
+                </h2>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-
-                    <div className="relative w-full sm:w-auto sm:max-w-xs">
+                    <div className="relative">
                         <Input
                             type="search"
                             placeholder="Search epics..."
-                            className="pl-9 h-12 bg-[#D7E2FF] focus:bg-[#D7E2FF]"
+                            className="pl-9 h-10 sm:h-11 w-full sm:w-[200px] bg-[#D7E2FF] focus:bg-[#D7E2FF] rounded-md"
                         />
-
-                        <Search className="absolute top-3 left-2 w-4 h-4 text-[#737685]" />
+                        <Search className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#737685]" />
                     </div>
 
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button className="px-4 h-12 rounded-sm bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] whitespace-nowrap">
-                                <Plus className="mr-2 w-4 h-4" />
+                            <Button className="px-4 h-10 sm:h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] whitespace-nowrap text-[13px]">
+                                <Plus className="mr-1.5 w-4 h-4" />
                                 New Epic
                             </Button>
                         </DialogTrigger>
 
                         <DialogContent className="sm:max-w-lg">
+                            <DialogTitle className="sr-only">Create New Epic</DialogTitle>
+                            <DialogDescription className="sr-only">
+                                Define a major project phase or high-level milestone to group related tasks and track architectural progress.
+                            </DialogDescription>
                             <CreateEpicsForm
                                 projectid={projectid}
                                 members={members}
                             />
                         </DialogContent>
                     </Dialog>
-
                 </div>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 px-4 sm:px-5'>
+            {/* Epics Grid */}
+            <div className="flex-1 px-4 sm:px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {pageData.map((epic: EpicData) => (
+                        <Card
+                            key={epic.id}
+                            className="relative w-full border-l-4 border-[#004E32] bg-white rounded-xl shadow-sm"
+                        >
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button
+                                        className="absolute top-3 right-3 z-10 p-1 rounded-md hover:bg-gray-100"
+                                        aria-label="Epic actions"
+                                    >
+                                        <MoreHorizontal className="w-5 h-5 cursor-pointer text-[#73768599]" />
+                                    </button>
+                                </DropdownMenuTrigger>
 
-                {data.map((epic: any) => (
+                                <DropdownMenuContent align="end">
+                                    {/* <DropdownMenuItem asChild>
+                                        <Link href={`/createtask?projectId=${projectid}&epicId=${epic.id}`}>
+                                            Create Task
+                                        </Link>
+                                    </DropdownMenuItem> */}
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            setSelectedEpic(epic as EpicData);
+                                            setDetailsOpen(true);
+                                        }}
+                                    >
+                                        Task Details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={`/editepics/${epic.id}`}>
+                                            Edit
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-500 font-main text-[13px] focus:text-red-500 focus:bg-red-50"
+                                        onClick={() => deleteMutation.mutate(epic.id)}
+                                    >
+                                        Delete
+                                    </DropdownMenuItem>
 
-                    <Card
-                        key={epic.id}
-                        className="relative w-full border-l-4 border-[#004E32]"
-                    >
+                                </DropdownMenuContent>
+                            </DropdownMenu>
 
-                        <DropdownMenu>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="py-1 px-2.5 bg-[#82F9BE] w-fit rounded-sm font-main font-bold text-[10px] text-[#005235]">
+                                    {epic.epic_id}
+                                </CardTitle>
+                            </CardHeader>
 
-                            <DropdownMenuTrigger asChild>
-                                <button className="absolute top-2 right-2 z-10 p-1 rounded-md hover:bg-gray-100">
-                                    <MoreHorizontal className="w-5 h-5 cursor-pointer" />
-                                </button>
-                            </DropdownMenuTrigger>
+                            <CardContent className="pb-4">
+                                <h3 className="font-main font-semibold text-[17px] sm:text-[19px] text-[#041B3C] mb-3">
+                                    {epic.title}
+                                </h3>
 
-                            <DropdownMenuContent align="center">
-
-                                <DropdownMenuItem asChild>
-                                    <Link href={`/editepics/${epic.id}`}>
-                                        Edit
-                                    </Link>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem
-                                    onClick={() => deleteMutation.mutate(epic.id)}
-                                >
-                                    Delete
-                                </DropdownMenuItem>
-
-                            </DropdownMenuContent>
-
-                        </DropdownMenu>
-
-                        <CardHeader>
-                            <CardTitle className='py-1 px-2.5 bg-[#82F9BE] w-fit text-[10px]'>
-                                {epic.epic_id}
-                            </CardTitle>
-                        </CardHeader>
-
-                        <CardContent className='border-b pb-6'>
-
-                            <h2 className='font-semibold text-[20px]'>
-                                {epic.title}
-                            </h2>
-
-                            <p className="text-sm text-gray-500 mb-3">
-                                {epic.description}
-                            </p>
-
-                            <div className='flex gap-2'>
-
-                                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#65DCA4] text-[11px] font-bold text-[#002113] mt-1">
-                                    <span>
-                                        {epic.assignee.name
-                                            .slice(0, 2)
-                                            .toUpperCase()}
-                                    </span>
+                                <div className="flex items-center gap-2">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#65DCA4] text-[11px] font-bold text-[#002113]">
+                                        {epic.assignee?.name
+                                            ?.slice(0, 2)
+                                            .toUpperCase() ?? "?"}
+                                    </div>
+                                    <div>
+                                        <span className="font-main text-[11px] text-[#434654]">
+                                            Assignee
+                                        </span>
+                                        <p className="font-main font-semibold text-[13px] text-[#041B3C]">
+                                            {epic.assignee?.name ?? "Unassigned"}
+                                        </p>
+                                    </div>
                                 </div>
+                            </CardContent>
 
-                                <div>
-                                    <span className='text-[12px] text-[#434654]'>
-                                        Assignee
-                                    </span>
-
-                                    <p className='font-semibold text-[14px]'>
-                                        {epic.assignee.name}
+                            <CardFooter className="flex flex-wrap justify-between items-center border-t pt-3 gap-2">
+                                <div className="flex items-center gap-1.5">
+                                    <UserPen className="w-3 h-3 text-[#434654CC]" />
+                                    <p className="font-main text-[11px] text-[#434654CC]">
+                                        Created by:
+                                        <span className="font-semibold text-[#041B3C] ml-1">
+                                            {epic.created_by?.name ?? "Unknown"}
+                                        </span>
                                     </p>
                                 </div>
 
-                            </div>
-
-                        </CardContent>
-
-                        <CardFooter className="flex justify-between items-center">
-
-                            <div className="flex items-center gap-1.5">
-
-                                <UserPen className='w-3 h-3' />
-
-                                <p className='text-[11px]'>
-                                    Created by:
-
-                                    <span className='font-semibold ml-1'>
-                                        {epic.created_by.name}
-                                    </span>
-                                </p>
-
-                            </div>
-
-                            <span className="flex items-center gap-1 text-[11px] text-[#434654CC]">
-
-                                <Calendar className="w-3 h-3" />
-
-                                {new Date(epic.created_at)
-                                    .toLocaleDateString()}
-
-                            </span>
-
-                        </CardFooter>
-
-                    </Card>
-                ))}
+                                <span className="flex items-center gap-1 font-main text-[11px] text-[#434654CC]">
+                                    <Calendar className="w-3 h-3" />
+                                    {epic.created_at ? new Date(epic.created_at).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                    }) : "—"}
+                                </span>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
             </div>
-        </>
+
+            {/* Pagination */}
+            {total > 0 && (
+                <div className="mt-6 px-4 sm:px-6 pb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p className="font-main text-[13px] text-[#4F5F7B]">
+                        Showing {pageData.length} of {total} epics
+                    </p>
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E8F0] bg-white text-[#4F5F7B] hover:bg-[#F2F5FF] disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Previous page"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                                <button
+                                    key={p}
+                                    onClick={() => setPage(p)}
+                                    aria-current={p === page ? "page" : undefined}
+                                    className={
+                                        "flex h-8 w-8 items-center justify-center rounded-md text-[13px] font-semibold border " +
+                                        (p === page
+                                            ? "bg-[#003D9B] text-white border-[#003D9B]"
+                                            : "bg-white text-[#4F5F7B] border-[#E5E8F0] hover:bg-[#F2F5FF]")
+                                    }
+                                >
+                                    {p}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E5E8F0] bg-white text-[#4F5F7B] hover:bg-[#F2F5FF] disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Next page"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <EpicDetailsDialog
+                epic={
+                    selectedEpic
+                        ? {
+                            ...selectedEpic,
+                            tasks: projectTasks
+                                .filter((t: TaskItem) => t.epic_id === selectedEpic.id)
+                                .map((t: TaskItem) => ({
+                                    id: t.id,
+                                    title: t.title,
+                                    status: t.status,
+                                    assignee: t.assignee ?? (t.assignee_name ? { name: t.assignee_name } : undefined),
+                                    due_date: t.due_date,
+                                })),
+                        }
+                        : null
+                }
+                projectId={projectid}
+                open={detailsOpen}
+                onOpenChange={setDetailsOpen}
+            />
+        </div>
     )
 }

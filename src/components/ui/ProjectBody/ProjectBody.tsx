@@ -15,9 +15,12 @@ import {
     AlertTriangle,
     ChevronLeft,
     ChevronRight,
+    DraftingCompass,
+    Layers,
     Loader2,
     MoreHorizontal,
     Plus,
+    Triangle,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -104,8 +107,13 @@ export default function ProjectBody() {
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem asChild>
-                                    <Link href={'/editproject/' + project.id}>
+                                <DropdownMenuItem asChild >
+
+                                    Project Tasks
+
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild >
+                                    <Link href={'/editproject/' + project.id} className="flex items-center gap-2 cursor-pointer text-[#041B3C] font-main text-[13px]">
                                         Edit
                                     </Link>
                                 </DropdownMenuItem>

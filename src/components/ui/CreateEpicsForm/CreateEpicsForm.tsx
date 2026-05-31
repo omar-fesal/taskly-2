@@ -9,16 +9,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button"
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {
     Field,
-    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
@@ -31,7 +22,6 @@ import {
     InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { useMutation } from "@tanstack/react-query"
-// import { CreateProjectAction } from "@/actions/CreateProjectAction"
 import {
     Select,
     SelectContent,
@@ -46,14 +36,13 @@ import CreateEpicsAction from "@/actions/CreateEpicsAction"
 const formSchema = z.object({
     title: z
         .string()
-        .min(5, "Title must be at least 5 characters.")
-        .max(100, "Title is too long"),
+        .min(5, "Title is required (minimum 5 characters)"),
 
     description: z
-        .string()
-        .min(10, "Description must be at least 10 characters."),
+        .string(),
 
-    assignee_id: z.string(),
+
+    assignee_id: z.string().min(1, "Please select an assignee"),
 
     project_id: z.string().uuid("Invalid project id"),
 
@@ -77,103 +66,146 @@ export default function CreateEpicsForm({ projectid, members }: any) {
             deadline: "",
         },
     });
-    const CreateProjectMutate = useMutation({
+
+    const createEpicMutation = useMutation({
         mutationFn: CreateEpicsAction,
         onSuccess: () => {
-            toast.success("crate post successfuly");
-            router.refresh()
-
+            toast.success("Epic created successfully");
+            router.push(`/projects/${projectid}`);
+            router.refresh();
         },
         onError: (error: any) => {
             toast.error(error?.message || "Something went wrong");
         }
-    })
+    });
 
     function onSubmit(data: z.infer<typeof formSchema>) {
-        CreateProjectMutate.mutate(data)
+        createEpicMutation.mutate(data);
     }
 
     return (
-        <Card className="w-2xl ">
-            <CardContent>
-                <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
-                    <FieldGroup>
+        <div>
+            {/* Breadcrumb */}
+            <div className="mb-2">
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    PROJECTS
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    {' > '}
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    PROJECT ALPHA
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    {' > '}
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    EPICS
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#43465499]">
+                    {' > '}
+                </span>
+                <span className="font-main font-bold text-[12px] text-[#041B3C]">
+                    NEW EPIC
+                </span>
+            </div>
+
+            {/* Page Title */}
+            <h1 className="font-main font-bold text-[26px] sm:text-[32px] text-[#041B3C] mb-1">
+                Create New Epic
+            </h1>
+            <p className="font-main text-[14px] sm:text-[15px] text-[#4F5F7B] mb-6 max-w-lg">
+                Define a major project phase or high-level milestone to group
+                related tasks and track architectural progress.
+            </p>
+
+            {/* Form Card */}
+            <div className="bg-[#F8FAFF] border border-[#E5E8F0] rounded-xl p-4 sm:p-8">
+                <form id="create-epic-form" onSubmit={form.handleSubmit(onSubmit)}>
+                    <FieldGroup className="gap-6">
+                        {/* Title */}
                         <Controller
                             name="title"
                             control={form.control}
                             render={({ field, fieldState }) => (
-                                <Field className="gap-2" data-invalid={fieldState.invalid}>
-                                    <div className="grid grid-cols-3 ">
-
-
+                                <Field data-invalid={fieldState.invalid}>
+                                    <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] items-start gap-2 sm:gap-4">
                                         <FieldLabel
                                             htmlFor="epic-title"
-                                            className="font-main text-[11px] font-bold text-[#4F5F7B] col-span-1"
+                                            className="font-main text-[11px] font-bold text-[#4F5F7B] uppercase tracking-wide pt-2"
                                         >
-                                            Name
+                                            Title <span className="text-red-500">*</span>
                                         </FieldLabel>
-                                        <Input
-                                            {...field}
-                                            id="epic-title"
-                                            type="text"
-                                            aria-invalid={fieldState.invalid}
-                                            placeholder="Project title"
-                                            autoComplete="text"
-                                            className="bg-[#D7E2FF] w-full col-span-2"
-                                        />
-                                        {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]} />
-                                        )}
+                                        <div className="w-full">
+                                            <Input
+                                                {...field}
+                                                id="epic-title"
+                                                type="text"
+                                                aria-invalid={fieldState.invalid}
+                                                placeholder="e.g. Structural Foundation Phase"
+                                                autoComplete="off"
+                                                className="bg-[#D7E2FF] w-full h-11"
+                                            />
+                                            {fieldState.invalid && (
+                                                <p className="flex items-center gap-1 mt-2 font-main text-[11px] font-bold text-red-600 uppercase tracking-wide">
+                                                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-red-500 text-[9px]">!</span>
+                                                    {fieldState.error?.message}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </Field>
                             )}
                         />
+
+                        {/* Description */}
                         <Controller
                             name="description"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field data-invalid={fieldState.invalid}>
-                                    <div className="grid grid-cols-3">
-
-
-                                        <FieldLabel htmlFor="epic-description"
-                                            className=" font-main text-[11px] font-bold  text-[#4F5F7B] col-span-1">
-                                            Description
-                                        </FieldLabel>
-                                        <InputGroup className="col-span-2 w-full bg-[#D7E2FF]  has-[[data-slot=input-group-control]:focus-visible]:ring-0 has-[[data-slot=input-group-control]:focus-visible]:border-transparent">
-                                            <InputGroupTextarea
-                                                {...field}
-                                                id="epic-description"
-                                                placeholder="I'm having an issue with the login button on mobile."
-                                                rows={12}
-                                                className="min-h-30 resize-none bg-transparent focus-visible:ring-0"
-                                                aria-invalid={fieldState.invalid}
-                                            />
-                                            <InputGroupAddon align="block-end" className="bg-white border-0 mt-1 justify-end rounded-b-[8px]">
-                                                <InputGroupText className="tabular-nums ">
-                                                    {field.value.length}/500 characters
-                                                </InputGroupText>
-                                            </InputGroupAddon>
-                                        </InputGroup>
-
-                                        {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]} />
-                                        )}
-
+                                    <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] items-start gap-2 sm:gap-4">
+                                        <div className="pt-2">
+                                            <FieldLabel
+                                                htmlFor="epic-description"
+                                                className="font-main text-[11px] font-bold text-[#4F5F7B] uppercase tracking-wide"
+                                            >
+                                                Description
+                                            </FieldLabel>
+                                            <p className="font-main text-[11px] text-[#737685] italic">
+                                                Optional
+                                            </p>
+                                        </div>
+                                        <div className="w-full">
+                                            <InputGroup className="w-full bg-[#D7E2FF] rounded-lg overflow-hidden has-[[data-slot=input-group-control]:focus-visible]:ring-0 has-[[data-slot=input-group-control]:focus-visible]:border-transparent">
+                                                <InputGroupTextarea
+                                                    {...field}
+                                                    id="epic-description"
+                                                    placeholder="Describe the scope and objectives of this epic..."
+                                                    rows={5}
+                                                    className="min-h-[120px] resize-none bg-transparent focus-visible:ring-0"
+                                                    aria-invalid={fieldState.invalid}
+                                                />
+                                                <InputGroupAddon align="block-end" className="bg-white border-0 mt-1 justify-end rounded-b-lg">
+                                                    <InputGroupText className="tabular-nums text-[12px] text-[#737685]">
+                                                        {field.value?.length || 0} / 500 characters
+                                                    </InputGroupText>
+                                                </InputGroupAddon>
+                                            </InputGroup>
+                                        </div>
                                     </div>
                                 </Field>
                             )}
                         />
-                        <div className="grid grid-cols-2 gap-4 w-full">
 
-
+                        {/* Assignee + Deadline row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <Controller
                                 name="assignee_id"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field className="w-full gap-2" data-invalid={fieldState.invalid}>
-
-                                        <FieldLabel className="font-main text-[11px] font-bold text-[#4F5F7B]">
+                                        <FieldLabel className="font-main text-[11px] font-bold text-[#4F5F7B] uppercase tracking-wide">
                                             Assignee
                                         </FieldLabel>
 
@@ -181,14 +213,13 @@ export default function CreateEpicsForm({ projectid, members }: any) {
                                             onValueChange={field.onChange}
                                             defaultValue={field.value}
                                         >
-                                            <SelectTrigger className="w-full bg-[#D7E2FF] py-6 border-none text-[16px] text-[#737685]">
-                                                <SelectValue placeholder="Select assignee" />
+                                            <SelectTrigger className="w-full bg-[#D7E2FF] h-11 border-none text-[14px] text-[#737685]">
+                                                <SelectValue placeholder="Select a member..." />
                                             </SelectTrigger>
 
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectLabel>Users</SelectLabel>
-
+                                                    <SelectLabel>Members</SelectLabel>
                                                     {members.map((member: any) => (
                                                         <SelectItem
                                                             key={member.member_id}
@@ -197,7 +228,6 @@ export default function CreateEpicsForm({ projectid, members }: any) {
                                                             {member.metadata?.name || member.email}
                                                         </SelectItem>
                                                     ))}
-
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
@@ -205,7 +235,6 @@ export default function CreateEpicsForm({ projectid, members }: any) {
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]} />
                                         )}
-
                                     </Field>
                                 )}
                             />
@@ -214,48 +243,48 @@ export default function CreateEpicsForm({ projectid, members }: any) {
                                 name="deadline"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
-                                    <Field className="w-full gap-2 " data-invalid={fieldState.invalid}>
-
-                                        <FieldLabel className="font-main text-[11px] font-bold text-[#4F5F7B]">
+                                    <Field className="w-full gap-2" data-invalid={fieldState.invalid}>
+                                        <FieldLabel className="font-main text-[11px] font-bold text-[#4F5F7B] uppercase tracking-wide">
                                             Deadline
                                         </FieldLabel>
 
                                         <Input
                                             {...field}
                                             type="date"
-                                            className="w-full bg-[#D7E2FF]"
+                                            className="w-full bg-[#D7E2FF] h-11"
                                             aria-invalid={fieldState.invalid}
                                         />
 
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]} />
                                         )}
-
                                     </Field>
                                 )}
                             />
                         </div>
                     </FieldGroup>
                 </form>
-            </CardContent>
-            <CardFooter>
-                <Field orientation="horizontal" className="flex items-end">
-                    <Button
-                        onClick={() => router.push('/projectepics')}
-                        className="w-auto px-10 h-12 rounded-sm bg-white font-main font-bold text-[#4F5F7B] hover:bg-white"
-                    >
-                        cancel</Button>
+            </div>
 
-                    <Button
-                        type="submit"
-                        form="form-rhf-demo"
-                        disabled={CreateProjectMutate.isPending}
-                        className="w-auto px-10 h-12 rounded-sm bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
-                    >
-                        {CreateProjectMutate.isPending ? "Creating..." : "Submit"}
-                    </Button>
-                </Field>
-            </CardFooter>
-        </Card>
+            {/* Footer Actions */}
+            <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-[#E5E8F0]">
+                <Button
+                    type="button"
+                    onClick={() => router.back()}
+                    className="px-6 h-11 rounded-md bg-transparent font-main font-semibold text-[#4F5F7B] hover:bg-gray-100 shadow-none"
+                >
+                    Cancel
+                </Button>
+
+                <Button
+                    type="submit"
+                    form="create-epic-form"
+                    disabled={createEpicMutation.isPending}
+                    className="px-6 h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
+                >
+                    {createEpicMutation.isPending ? "Creating..." : "Create Epic"}
+                </Button>
+            </div>
+        </div>
     )
 }

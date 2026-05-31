@@ -1,9 +1,11 @@
 import ProjectHeader from '@/components/ui/ProjectHeader/ProjectHeader';
 import ProjectBody from '@/components/ui/ProjectBody/ProjectBody';
+import EpicDetailsDialog from '@/components/ui/EpicDetailsDialog/EpicDetailsDialog';
 
 export default function Projects() {
     return (
         <main>
+
             <ProjectHeader
                 title='Projects'
                 description='Manage and curate your projects'
