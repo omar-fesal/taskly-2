@@ -15,7 +15,7 @@ export default function CreateProject() {
                 title='Add New Project'
                 buttonText='Invite Member'
                 icon='userPlus'
-                action='invite'
+                action='dialog'
             />
             <div className='flex justify-center items-center px-4'>
                 <CreateProjectForm />

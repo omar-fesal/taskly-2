@@ -53,7 +53,7 @@ const formSchema = z.object({
         }),
 });
 
-export default function CreateEpicsForm({ projectid, members, onClose }: any) {
+export default function CreateEpicsForm({ projectid, members = [], onClose }: any) {
     const router = useRouter();
     const queryClient = useQueryClient();
 

@@ -26,7 +26,6 @@ import {
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field"
-import { AuthServices } from "@/services/AuthServices"
 
 
 const formSchema = z
@@ -74,7 +73,7 @@ export function RegisterForm() {
 
     const registerMutation = useMutation({
         mutationKey: ['register'],
-        mutationFn: AuthServices.RegisterAction,
+        mutationFn: RegisterAction,
         onSuccess: () => {
             toast.success("Account created successfully")
             form.reset()

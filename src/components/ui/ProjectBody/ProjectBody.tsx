@@ -155,7 +155,7 @@ export default function ProjectBody() {
                 {/* Add Project tile */}
                 <Link
                     href="/createproject"
-                    className="group flex flex-col items-center justify-center gap-3 w-full min-h-[200px] rounded-xl border border-dashed border-[#C7CEDB] bg-white hover:border-[#003D9B] hover:bg-[#F2F5FF] transition-colors"
+                    className="group flex flex-col items-center justify-center gap-3 w-full min-h-50 rounded-xl border border-dashed border-[#C7CEDB] bg-white hover:border-[#003D9B] hover:bg-[#F2F5FF] transition-colors"
                 >
                     <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#F2F5FF] text-[#003D9B] group-hover:bg-white">
                         <Plus className="w-5 h-5" />
