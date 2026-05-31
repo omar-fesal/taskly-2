@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import CreateEpicsForm from "@/components/ui/CreateEpicsForm/CreateEpicsForm";
+import CreateTaskForm from "@/components/ui/CreateTaskForm/CreateTaskForm";
 import EpicDetailsDialog, {
     type EpicData,
 } from "@/components/ui/EpicDetailsDialog/EpicDetailsDialog";
@@ -77,7 +78,8 @@ export default function ProjectDetails() {
     const [page, setPage] = useState(1);
     const [selectedEpic, setSelectedEpic] = useState<EpicData | null>(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
-
+    const [createEpicOpen, setCreateEpicOpen] = useState(false);
+    const [createTaskOpen, setCreateTaskOpen] = useState(false);
     // Get Project
     const { data: project } = useQuery({
         queryKey: ["project", projectid],
@@ -161,12 +163,12 @@ export default function ProjectDetails() {
                         <Input
                             type="search"
                             placeholder="Search epics..."
-                            className="pl-9 h-10 sm:h-11 w-full sm:w-[200px] bg-[#D7E2FF] focus:bg-[#D7E2FF] rounded-md"
+                            className="pl-9 h-10 sm:h-11 w-full sm:w-50 bg-[#D7E2FF] focus:bg-[#D7E2FF] rounded-md"
                         />
                         <Search className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#737685]" />
                     </div>
 
-                    <Dialog>
+                    <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
                         <DialogTrigger asChild>
                             <Button className="px-4 h-10 sm:h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] whitespace-nowrap text-[13px]">
                                 <Plus className="mr-1.5 w-4 h-4" />
@@ -182,6 +184,7 @@ export default function ProjectDetails() {
                             <CreateEpicsForm
                                 projectid={projectid}
                                 members={members}
+                                onClose={() => setCreateEpicOpen(false)}
                             />
                         </DialogContent>
                     </Dialog>
@@ -354,7 +357,25 @@ export default function ProjectDetails() {
                 projectId={projectid}
                 open={detailsOpen}
                 onOpenChange={setDetailsOpen}
+                onAddTask={() => {
+                    setDetailsOpen(false);
+                    setCreateTaskOpen(true);
+                }}
             />
+
+            <Dialog open={createTaskOpen} onOpenChange={setCreateTaskOpen}>
+                <DialogContent className="sm:max-w-2xl bg-white p-6 sm:p-8 rounded-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogTitle className="sr-only">Create New Task</DialogTitle>
+                    <CreateTaskForm
+                        projectId={projectid}
+                        epicId={selectedEpic?.id}
+                        onClose={() => {
+                            setCreateTaskOpen(false);
+                            setDetailsOpen(true);
+                        }}
+                    />
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

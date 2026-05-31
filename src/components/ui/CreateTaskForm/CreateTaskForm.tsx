@@ -53,6 +53,7 @@ export interface EpicOption {
 export interface CreateTaskFormProps {
     projectId?: string
     epicId?: string
+    onClose?: () => void
 }
 
 const STATUS_OPTIONS = [
@@ -87,6 +88,7 @@ export type TaskFormValues = z.infer<typeof formSchema>
 export default function CreateTaskForm({
     projectId,
     epicId,
+    onClose,
 }: CreateTaskFormProps) {
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -122,7 +124,10 @@ export default function CreateTaskForm({
         onSuccess: () => {
             toast.success("Task created successfully")
             queryClient.invalidateQueries({ queryKey: ["tasks", projectId] })
-            if (projectId) {
+            queryClient.invalidateQueries({ queryKey: ["project_tasks", projectId] })
+            if (onClose) {
+                onClose()
+            } else if (projectId) {
                 router.push(`/projects/${projectId}`)
             } else {
                 router.back()
@@ -446,7 +451,13 @@ export default function CreateTaskForm({
                     <div className="flex justify-end items-center gap-3 mt-6">
                         <Button
                             type="button"
-                            onClick={() => router.back()}
+                            onClick={() => {
+                                if (onClose) {
+                                    onClose()
+                                } else {
+                                    router.back()
+                                }
+                            }}
                             className="px-6 h-11 rounded-md bg-transparent font-main font-semibold text-[#4F5F7B] hover:bg-gray-100 shadow-none"
                         >
                             Back

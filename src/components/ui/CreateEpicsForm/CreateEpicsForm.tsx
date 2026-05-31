@@ -21,7 +21,7 @@ import {
     InputGroupText,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import {
     Select,
     SelectContent,
@@ -36,7 +36,7 @@ import CreateEpicsAction from "@/actions/CreateEpicsAction"
 const formSchema = z.object({
     title: z
         .string()
-        .min(5, "Title is required (minimum 5 characters)"),
+        .min(3, "Title is required (minimum 3 characters)"),
 
     description: z
         .string(),
@@ -53,8 +53,9 @@ const formSchema = z.object({
         }),
 });
 
-export default function CreateEpicsForm({ projectid, members }: any) {
+export default function CreateEpicsForm({ projectid, members, onClose }: any) {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -71,8 +72,14 @@ export default function CreateEpicsForm({ projectid, members }: any) {
         mutationFn: CreateEpicsAction,
         onSuccess: () => {
             toast.success("Epic created successfully");
-            router.push(`/projects/${projectid}`);
-            router.refresh();
+            queryClient.invalidateQueries({
+                queryKey: ["epics", projectid]
+            });
+            if (onClose) {
+                onClose();
+            } else {
+                router.push(`/projects/${projectid}`);
+            }
         },
         onError: (error: any) => {
             toast.error(error?.message || "Something went wrong");
@@ -270,7 +277,13 @@ export default function CreateEpicsForm({ projectid, members }: any) {
             <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-[#E5E8F0]">
                 <Button
                     type="button"
-                    onClick={() => router.back()}
+                    onClick={() => {
+                        if (onClose) {
+                            onClose();
+                        } else {
+                            router.back();
+                        }
+                    }}
                     className="px-6 h-11 rounded-md bg-transparent font-main font-semibold text-[#4F5F7B] hover:bg-gray-100 shadow-none"
                 >
                     Cancel

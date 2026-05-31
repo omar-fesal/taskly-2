@@ -41,6 +41,7 @@ export interface EpicDetailsDialogProps {
     projectId: string
     open: boolean
     onOpenChange: (open: boolean) => void
+    onAddTask?: () => void
 }
 
 function formatDate(value?: string) {
@@ -81,6 +82,7 @@ export default function EpicDetailsDialog({
     projectId,
     open,
     onOpenChange,
+    onAddTask,
 }: EpicDetailsDialogProps) {
     if (!epic) return null
 
@@ -136,14 +138,24 @@ export default function EpicDetailsDialog({
                         Tasks
                     </h3>
 
-                    <Link
-                        href={addTaskHref}
-                        onClick={() => onOpenChange(false)}
-                        className="flex items-center gap-1 font-main font-semibold text-[13px] text-[#003D9B] hover:text-[#0052CC]"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Add Task
-                    </Link>
+                    {onAddTask ? (
+                        <button
+                            onClick={onAddTask}
+                            className="flex items-center gap-1 font-main font-semibold text-[13px] text-[#003D9B] hover:text-[#0052CC] cursor-pointer bg-transparent border-none"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Task
+                        </button>
+                    ) : (
+                        <Link
+                            href={addTaskHref}
+                            onClick={() => onOpenChange(false)}
+                            className="flex items-center gap-1 font-main font-semibold text-[13px] text-[#003D9B] hover:text-[#0052CC]"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Task
+                        </Link>
+                    )}
                 </div>
 
                 {/* Tasks list / empty state */}
@@ -155,18 +167,28 @@ export default function EpicDetailsDialog({
                         <p className="font-main text-[14px] text-[#4F5F7B]">
                             No tasks have been added to this epic yet
                         </p>
-                        <Button
-                            asChild
-                            className="px-5 h-10 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
-                        >
-                            <Link
-                                href={addTaskHref}
-                                onClick={() => onOpenChange(false)}
+                        {onAddTask ? (
+                            <Button
+                                onClick={onAddTask}
+                                className="px-5 h-10 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
                             >
                                 <Plus className="w-4 h-4 mr-1.5" />
                                 Add Task
-                            </Link>
-                        </Button>
+                            </Button>
+                        ) : (
+                            <Button
+                                asChild
+                                className="px-5 h-10 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC]"
+                            >
+                                <Link
+                                    href={addTaskHref}
+                                    onClick={() => onOpenChange(false)}
+                                >
+                                    <Plus className="w-4 h-4 mr-1.5" />
+                                    Add Task
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                 ) : (
                     <ul className="mt-3 flex flex-col divide-y divide-[#E5E8F0]">
