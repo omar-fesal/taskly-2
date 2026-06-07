@@ -24,12 +24,7 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    InputGroupTextarea,
-} from "@/components/ui/input-group"
+import { Textarea } from "@/components/ui/textarea"
 import { useMutation } from "@tanstack/react-query"
 import CreateProjectAction from "@/actions/CreateProjectAction"
 
@@ -37,7 +32,7 @@ import CreateProjectAction from "@/actions/CreateProjectAction"
 const formSchema = z.object({
     name: z
         .string()
-        .min(5, "Bug title must be at least 5 characters.")
+        .min(3, "Bug title must be at least 5 characters.")
         .max(32, "Bug title must be at most 32 characters."),
     description: z
         .string()
@@ -117,21 +112,20 @@ export function CreateProjectForm() {
                                         className="font-main text-[11px] font-bold  text-[#4F5F7B]">
                                         Description
                                     </FieldLabel>
-                                    <InputGroup>
-                                        <InputGroupTextarea
+                                    <div className="flex flex-col">
+                                        <Textarea
                                             {...field}
                                             id="form-rhf-demo-description"
-                                            placeholder="I'm having an issue with the login button on mobile."
+                                            placeholder="Describe the project goals, scope, and any relevant context..."
                                             rows={12}
-                                            className="min-h-30 resize-none bg-[#D7E2FF]  "
+                                            className="min-h-30 resize-none bg-[#D7E2FF] border-0 shadow-none focus-visible:ring-0 focus-visible:outline-none rounded-md"
                                             aria-invalid={fieldState.invalid}
+                                            autoFocus={false}
                                         />
-                                        <InputGroupAddon align="block-end" className="bg-white border-0 mt-1">
-                                            <InputGroupText className="tabular-nums ">
-                                                {field.value.length}/500 characters
-                                            </InputGroupText>
-                                        </InputGroupAddon>
-                                    </InputGroup>
+                                        <span className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+                                            {field.value.length}/500 characters
+                                        </span>
+                                    </div>
 
                                     {fieldState.invalid && (
                                         <FieldError errors={[fieldState.error]} />

@@ -84,7 +84,7 @@ export default function ProjectDetails() {
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [createEpicOpen, setCreateEpicOpen] = useState(false);
     const [createTaskOpen, setCreateTaskOpen] = useState(false);
-    // Get Project
+
     const { data: project } = useQuery({
         queryKey: ["project", projectid],
         queryFn: () => GetProjectById(projectid),
@@ -97,7 +97,7 @@ export default function ProjectDetails() {
         queryFn: () => GetEpicsCardAction(projectid as string)
     });
 
-    // Get Project Tasks (fetched lazily on Task Details click)
+
     const { data: projectTasks = [] } = useQuery<TaskItem[]>({
         queryKey: ["project_tasks", projectid],
         queryFn: () => GetProjectTaskAction(projectid),
@@ -110,7 +110,7 @@ export default function ProjectDetails() {
         queryFn: () => GetMemberAction(projectid as string)
     });
 
-    // Delete Mutation
+
     const deleteMutation = useMutation({
         mutationFn: DeleteEpic,
         onSuccess: () => {
@@ -134,7 +134,7 @@ export default function ProjectDetails() {
 
     return (
         <div className="flex flex-col min-h-[calc(100vh-4rem)]">
-            {/* Breadcrumb */}
+
             <div className="px-4 pt-4 sm:px-6 sm:pt-5">
                 <Link
                     href={'/projects'}
@@ -156,7 +156,7 @@ export default function ProjectDetails() {
                 </span>
             </div>
 
-            {/* Header */}
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
                 <h2 className="font-main font-semibold text-[24px] sm:text-[30px] text-[#041B3C]">
                     Project Epics
@@ -195,11 +195,11 @@ export default function ProjectDetails() {
                 </div>
             </div>
 
-            {/* Epics Grid */}
+
             <div className="flex-1 px-4 sm:px-6">
                 {data.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                        {/* Illustration */}
+
                         <div className="relative mb-8">
                             <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#EEF3FF] to-[#D7E2FF] flex items-center justify-center shadow-md">
                                 <div className="grid grid-cols-2 gap-1.5 p-2">
@@ -219,7 +219,7 @@ export default function ProjectDetails() {
                             </div>
                         </div>
 
-                        {/* Text */}
+
                         <h3 className="font-main font-bold text-[22px] text-[#041B3C] mb-2">
                             No epics in this project yet.
                         </h3>
@@ -227,7 +227,7 @@ export default function ProjectDetails() {
                             Break down your large project into manageable epics to track progress better and maintain architectural clarity.
                         </p>
 
-                        {/* CTA */}
+
                         <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
                             <DialogTrigger asChild>
                                 <Button className="px-6 h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] text-[13px]">
@@ -280,101 +280,101 @@ export default function ProjectDetails() {
                         </div>
                     </div>
                 ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {pageData.map((epic: EpicData) => (
-                        <Card
-                            key={epic.id}
-                            className="relative w-full border-l-4 border-[#004E32] bg-white rounded-xl shadow-sm"
-                        >
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <button
-                                        className="absolute top-3 right-3 z-10 p-1 rounded-md hover:bg-gray-100"
-                                        aria-label="Epic actions"
-                                    >
-                                        <MoreHorizontal className="w-5 h-5 cursor-pointer text-[#73768599]" />
-                                    </button>
-                                </DropdownMenuTrigger>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {pageData.map((epic: EpicData) => (
+                            <Card
+                                key={epic.id}
+                                className="relative w-full border-l-4 border-[#004E32] bg-white rounded-xl shadow-sm"
+                            >
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button
+                                            className="absolute top-3 right-3 z-10 p-1 rounded-md hover:bg-gray-100"
+                                            aria-label="Epic actions"
+                                        >
+                                            <MoreHorizontal className="w-5 h-5 cursor-pointer text-[#73768599]" />
+                                        </button>
+                                    </DropdownMenuTrigger>
 
-                                <DropdownMenuContent align="end">
-                                    {/* <DropdownMenuItem asChild>
+                                    <DropdownMenuContent align="end">
+                                        {/* <DropdownMenuItem asChild>
                                         <Link href={`/createtask?projectId=${projectid}&epicId=${epic.id}`}>
                                             Create Task
                                         </Link>
                                     </DropdownMenuItem> */}
-                                    <DropdownMenuItem
-                                        onClick={() => {
-                                            setSelectedEpic(epic as EpicData);
-                                            setDetailsOpen(true);
-                                        }}
-                                    >
-                                        Task Details
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href={`/editepics/${epic.id}`}>
-                                            Edit
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-500 font-main text-[13px] focus:text-red-500 focus:bg-red-50"
-                                        onClick={() => deleteMutation.mutate(epic.id)}
-                                    >
-                                        Delete
-                                    </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => {
+                                                setSelectedEpic(epic as EpicData);
+                                                setDetailsOpen(true);
+                                            }}
+                                        >
+                                            Task Details
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/editepics/${epic.id}`}>
+                                                Edit
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-red-500 font-main text-[13px] focus:text-red-500 focus:bg-red-50"
+                                            onClick={() => deleteMutation.mutate(epic.id)}
+                                        >
+                                            Delete
+                                        </DropdownMenuItem>
 
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
 
-                            <CardHeader className="pb-2">
-                                <CardTitle className="py-1 px-2.5 bg-[#82F9BE] w-fit rounded-sm font-main font-bold text-[10px] text-[#005235]">
-                                    {epic.epic_id}
-                                </CardTitle>
-                            </CardHeader>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="py-1 px-2.5 bg-[#82F9BE] w-fit rounded-sm font-main font-bold text-[10px] text-[#005235]">
+                                        {epic.epic_id}
+                                    </CardTitle>
+                                </CardHeader>
 
-                            <CardContent className="pb-4">
-                                <h3 className="font-main font-semibold text-[17px] sm:text-[19px] text-[#041B3C] mb-3">
-                                    {epic.title}
-                                </h3>
+                                <CardContent className="pb-4">
+                                    <h3 className="font-main font-semibold text-[17px] sm:text-[19px] text-[#041B3C] mb-3">
+                                        {epic.title}
+                                    </h3>
 
-                                <div className="flex items-center gap-2">
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#65DCA4] text-[11px] font-bold text-[#002113]">
-                                        {epic.assignee?.name
-                                            ?.slice(0, 2)
-                                            .toUpperCase() ?? "?"}
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#65DCA4] text-[11px] font-bold text-[#002113]">
+                                            {epic.assignee?.name
+                                                ?.slice(0, 2)
+                                                .toUpperCase() ?? "?"}
+                                        </div>
+                                        <div>
+                                            <span className="font-main text-[11px] text-[#434654]">
+                                                Assignee
+                                            </span>
+                                            <p className="font-main font-semibold text-[13px] text-[#041B3C]">
+                                                {epic.assignee?.name ?? "Unassigned"}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span className="font-main text-[11px] text-[#434654]">
-                                            Assignee
-                                        </span>
-                                        <p className="font-main font-semibold text-[13px] text-[#041B3C]">
-                                            {epic.assignee?.name ?? "Unassigned"}
+                                </CardContent>
+
+                                <CardFooter className="flex flex-wrap justify-between items-center border-t pt-3 gap-2">
+                                    <div className="flex items-center gap-1.5">
+                                        <UserPen className="w-3 h-3 text-[#434654CC]" />
+                                        <p className="font-main text-[11px] text-[#434654CC]">
+                                            Created by:
+                                            <span className="font-semibold text-[#041B3C] ml-1">
+                                                {epic.created_by?.name ?? "Unknown"}
+                                            </span>
                                         </p>
                                     </div>
-                                </div>
-                            </CardContent>
 
-                            <CardFooter className="flex flex-wrap justify-between items-center border-t pt-3 gap-2">
-                                <div className="flex items-center gap-1.5">
-                                    <UserPen className="w-3 h-3 text-[#434654CC]" />
-                                    <p className="font-main text-[11px] text-[#434654CC]">
-                                        Created by:
-                                        <span className="font-semibold text-[#041B3C] ml-1">
-                                            {epic.created_by?.name ?? "Unknown"}
-                                        </span>
-                                    </p>
-                                </div>
-
-                                <span className="flex items-center gap-1 font-main text-[11px] text-[#434654CC]">
-                                    <Calendar className="w-3 h-3" />
-                                    {epic.created_at ? new Date(epic.created_at).toLocaleDateString("en-GB", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                    }) : "—"}
-                                </span>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+                                    <span className="flex items-center gap-1 font-main text-[11px] text-[#434654CC]">
+                                        <Calendar className="w-3 h-3" />
+                                        {epic.created_at ? new Date(epic.created_at).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                        }) : "—"}
+                                    </span>
+                                </CardFooter>
+                            </Card>
+                        ))}
+                    </div>
                 )}
             </div>
 
