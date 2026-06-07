@@ -109,7 +109,7 @@ export function SideNav() {
                 {/* Logo + close button */}
                 <div className="flex items-center justify-between p-5">
                     <Image
-                        src="/logo.png"
+                        src="/Logo.png"
                         alt="Taskly Logo"
                         width={100}
                         height={80}
