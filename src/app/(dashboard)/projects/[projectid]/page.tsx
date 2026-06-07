@@ -15,9 +15,13 @@ import {
     Calendar,
     ChevronLeft,
     ChevronRight,
+    Flag,
+    GitBranch,
+    LayoutGrid,
     MoreHorizontal,
     Plus,
     Search,
+    Target,
     UserPen,
 } from "lucide-react";
 
@@ -193,6 +197,89 @@ export default function ProjectDetails() {
 
             {/* Epics Grid */}
             <div className="flex-1 px-4 sm:px-6">
+                {data.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                        {/* Illustration */}
+                        <div className="relative mb-8">
+                            <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-[#EEF3FF] to-[#D7E2FF] flex items-center justify-center shadow-md">
+                                <div className="grid grid-cols-2 gap-1.5 p-2">
+                                    <div className="w-9 h-9 rounded-md bg-white shadow-sm flex items-center justify-center">
+                                        <LayoutGrid className="w-4 h-4 text-[#003D9B]" />
+                                    </div>
+                                    <div className="w-9 h-9 rounded-md bg-white shadow-sm flex items-center justify-center">
+                                        <Flag className="w-4 h-4 text-[#003D9B]" />
+                                    </div>
+                                    <div className="w-9 h-9 rounded-md bg-white shadow-sm flex items-center justify-center">
+                                        <GitBranch className="w-4 h-4 text-[#003D9B]" />
+                                    </div>
+                                    <div className="w-9 h-9 rounded-md bg-[#003D9B] shadow-sm flex items-center justify-center">
+                                        <Plus className="w-4 h-4 text-white" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Text */}
+                        <h3 className="font-main font-bold text-[22px] text-[#041B3C] mb-2">
+                            No epics in this project yet.
+                        </h3>
+                        <p className="font-main text-[13px] text-[#4F5F7B] max-w-xs leading-relaxed mb-7">
+                            Break down your large project into manageable epics to track progress better and maintain architectural clarity.
+                        </p>
+
+                        {/* CTA */}
+                        <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
+                            <DialogTrigger asChild>
+                                <Button className="px-6 h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] text-[13px]">
+                                    <Plus className="mr-2 w-4 h-4" />
+                                    Create First Epic
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-lg">
+                                <DialogTitle className="sr-only">Create New Epic</DialogTitle>
+                                <DialogDescription className="sr-only">
+                                    Define a major project phase or high-level milestone to group related tasks and track architectural progress.
+                                </DialogDescription>
+                                <CreateEpicsForm
+                                    projectid={projectid}
+                                    members={members}
+                                    onClose={() => setCreateEpicOpen(false)}
+                                />
+                            </DialogContent>
+                        </Dialog>
+
+                        {/* Feature highlights */}
+                        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xl">
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#F6F8FF] border border-[#E5E8F0]">
+                                <div className="w-9 h-9 rounded-md bg-[#D7E2FF] flex items-center justify-center">
+                                    <Target className="w-4 h-4 text-[#003D9B]" />
+                                </div>
+                                <p className="font-main font-semibold text-[12px] text-[#041B3C]">High Level Goals</p>
+                                <p className="font-main text-[11px] text-[#4F5F7B] text-center leading-relaxed">
+                                    Define overarching aims that set scope and direction for your team.
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#F6F8FF] border border-[#E5E8F0]">
+                                <div className="w-9 h-9 rounded-md bg-[#D7E2FF] flex items-center justify-center">
+                                    <GitBranch className="w-4 h-4 text-[#003D9B]" />
+                                </div>
+                                <p className="font-main font-semibold text-[12px] text-[#041B3C]">Hierarchy Design</p>
+                                <p className="font-main text-[11px] text-[#4F5F7B] text-center leading-relaxed">
+                                    Link epics and tasks in a structured hierarchy for proportional clarity.
+                                </p>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-[#F6F8FF] border border-[#E5E8F0]">
+                                <div className="w-9 h-9 rounded-md bg-[#D7E2FF] flex items-center justify-center">
+                                    <Flag className="w-4 h-4 text-[#003D9B]" />
+                                </div>
+                                <p className="font-main font-semibold text-[12px] text-[#041B3C]">Track Holistic</p>
+                                <p className="font-main text-[11px] text-[#4F5F7B] text-center leading-relaxed">
+                                    Monitor progress at every level without losing the broader picture.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {pageData.map((epic: EpicData) => (
                         <Card
@@ -288,6 +375,7 @@ export default function ProjectDetails() {
                         </Card>
                     ))}
                 </div>
+                )}
             </div>
 
             {/* Pagination */}

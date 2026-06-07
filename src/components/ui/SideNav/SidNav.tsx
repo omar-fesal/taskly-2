@@ -35,8 +35,7 @@ function buildMenu(projectId: string | null) {
         { label: "Projects", icon: Folder, href: "/projects" },
         { label: "Project Epics", icon: LayoutDashboard, href: base ?? "/projects" },
         { label: "Project Tasks", icon: List, href: base ? `${base}/tasks` : "/projects" },
-        { label: "Project Members", icon: Users, href: "/projectmembers" },
-        { label: "Project Details", icon: Info, href: "/projectdetails" },
+
     ]
 }
 
