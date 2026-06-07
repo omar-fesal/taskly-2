@@ -154,12 +154,7 @@ export default function CreateEpicsForm({ projectid, members = [], onClose }: an
                                                 autoComplete="off"
                                                 className="bg-[#D7E2FF] w-full h-11"
                                             />
-                                            {fieldState.invalid && (
-                                                <p className="flex items-center gap-1 mt-2 font-main text-[11px] font-bold text-red-600 uppercase tracking-wide">
-                                                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-red-500 text-[9px]">!</span>
-                                                    {fieldState.error?.message}
-                                                </p>
-                                            )}
+                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                                         </div>
                                     </div>
                                 </Field>
