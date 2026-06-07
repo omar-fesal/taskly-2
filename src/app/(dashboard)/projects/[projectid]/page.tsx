@@ -32,7 +32,6 @@ import {
     DialogContent,
     DialogDescription,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 
 import {
@@ -172,28 +171,30 @@ export default function ProjectDetails() {
                         <Search className="absolute top-1/2 -translate-y-1/2 left-3 w-4 h-4 text-[#737685]" />
                     </div>
 
-                    <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="px-4 h-10 sm:h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] whitespace-nowrap text-[13px]">
-                                <Plus className="mr-1.5 w-4 h-4" />
-                                New Epic
-                            </Button>
-                        </DialogTrigger>
-
-                        <DialogContent className="sm:max-w-lg">
-                            <DialogTitle className="sr-only">Create New Epic</DialogTitle>
-                            <DialogDescription className="sr-only">
-                                Define a major project phase or high-level milestone to group related tasks and track architectural progress.
-                            </DialogDescription>
-                            <CreateEpicsForm
-                                projectid={projectid}
-                                members={members}
-                                onClose={() => setCreateEpicOpen(false)}
-                            />
-                        </DialogContent>
-                    </Dialog>
+                    <Button
+                        onClick={() => setCreateEpicOpen(true)}
+                        className="px-4 h-10 sm:h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] whitespace-nowrap text-[13px]"
+                    >
+                        <Plus className="mr-1.5 w-4 h-4" />
+                        New Epic
+                    </Button>
                 </div>
             </div>
+
+            {/* Single Create Epic Dialog — one instance, two triggers */}
+            <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
+                <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogTitle className="sr-only">Create New Epic</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Define a major project phase or high-level milestone to group related tasks and track architectural progress.
+                    </DialogDescription>
+                    <CreateEpicsForm
+                        projectid={projectid}
+                        members={members}
+                        onClose={() => setCreateEpicOpen(false)}
+                    />
+                </DialogContent>
+            </Dialog>
 
 
             <div className="flex-1 px-4 sm:px-6">
@@ -228,25 +229,13 @@ export default function ProjectDetails() {
                         </p>
 
 
-                        <Dialog open={createEpicOpen} onOpenChange={setCreateEpicOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="px-6 h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] text-[13px]">
-                                    <Plus className="mr-2 w-4 h-4" />
-                                    Create First Epic
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg">
-                                <DialogTitle className="sr-only">Create New Epic</DialogTitle>
-                                <DialogDescription className="sr-only">
-                                    Define a major project phase or high-level milestone to group related tasks and track architectural progress.
-                                </DialogDescription>
-                                <CreateEpicsForm
-                                    projectid={projectid}
-                                    members={members}
-                                    onClose={() => setCreateEpicOpen(false)}
-                                />
-                            </DialogContent>
-                        </Dialog>
+                        <Button
+                            onClick={() => setCreateEpicOpen(true)}
+                            className="px-6 h-11 rounded-md bg-[#003D9B] font-main font-semibold hover:bg-[#0052CC] text-[13px]"
+                        >
+                            <Plus className="mr-2 w-4 h-4" />
+                            Create First Epic
+                        </Button>
 
                         {/* Feature highlights */}
                         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-xl">

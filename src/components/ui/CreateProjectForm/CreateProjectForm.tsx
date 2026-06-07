@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import CreateProjectAction from "@/actions/CreateProjectAction"
 
 
@@ -41,6 +41,7 @@ const formSchema = z.object({
 
 export function CreateProjectForm() {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -53,9 +54,11 @@ export function CreateProjectForm() {
     const CreateProjectMutate = useMutation({
         mutationFn: CreateProjectAction,
         onSuccess: () => {
-            toast.success("crate post successfuly");
+            toast.success("Project created successfully!");
+            queryClient.invalidateQueries({
+                queryKey: ["projects"]
+            });
             router.push("/projects")
-
         },
         onError: (error: any) => {
             toast.error(error?.message || "Something went wrong");

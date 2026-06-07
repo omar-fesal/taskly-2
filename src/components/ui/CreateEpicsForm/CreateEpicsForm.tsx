@@ -87,6 +87,7 @@ export default function CreateEpicsForm({ projectid, members = [], onClose }: an
     });
 
     function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log("SUBMIT", data);
         createEpicMutation.mutate(data);
     }
 
