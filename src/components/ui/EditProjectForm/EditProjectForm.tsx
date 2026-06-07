@@ -151,7 +151,7 @@ export function EditProjectForm({ projectId }: EditProjectFormProps) {
                                             id="project-description"
                                             placeholder="Project description"
                                             rows={12}
-                                            className="min-h-30 resize-none bg-[#D7E2FF]"
+                                            className="min-h-30 resize-none bg-[#D7E2FF] text-[#737685]"
                                             aria-invalid={fieldState.invalid}
                                         />
                                         <InputGroupAddon align="block-end" className="bg-white border-0 mt-1">

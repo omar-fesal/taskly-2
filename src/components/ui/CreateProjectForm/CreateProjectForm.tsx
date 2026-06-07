@@ -121,7 +121,7 @@ export function CreateProjectForm() {
                                             id="form-rhf-demo-description"
                                             placeholder="Describe the project goals, scope, and any relevant context..."
                                             rows={12}
-                                            className="min-h-30 resize-none bg-[#D7E2FF] border-0 shadow-none focus-visible:ring-0 focus-visible:outline-none rounded-md"
+                                            className="min-h-30 resize-none text-[#737685] bg-[#D7E2FF] border-0 shadow-none focus-visible:ring-0 focus-visible:outline-none rounded-md"
                                             aria-invalid={fieldState.invalid}
                                             autoFocus={false}
                                         />

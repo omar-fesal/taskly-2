@@ -166,7 +166,7 @@ export default function EditEpicsForm({
                                         id="project-name"
                                         type="text"
                                         placeholder="Project title"
-                                        className="w-full h-12 px-3 rounded-md bg-[#D7E2FF]"
+                                        className="w-full h-12 px-3 rounded-md bg-[#D7E2FF] text-[#737685]"
                                     />
 
                                     {fieldState.invalid && (
@@ -188,7 +188,7 @@ export default function EditEpicsForm({
 
                                     <FieldLabel
                                         htmlFor="project-description"
-                                        className="font-main text-[11px] font-bold text-[#4F5F7B]"
+                                        className="font-main text-[11px] font-bold text-[#4F5F7B] "
                                     >
                                         Description
                                     </FieldLabel>
@@ -200,7 +200,7 @@ export default function EditEpicsForm({
                                             id="project-description"
                                             placeholder="Project description"
                                             rows={12}
-                                            className="min-h-30 resize-none bg-[#D7E2FF]"
+                                            className="min-h-30 resize-none bg-[#D7E2FF] text-[#737685]"
                                             aria-invalid={fieldState.invalid}
                                         />
 
