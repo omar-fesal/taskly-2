@@ -26,6 +26,8 @@ import {
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field"
+import { useRouter } from "next/navigation"
+
 
 
 const formSchema = z
@@ -56,7 +58,7 @@ type FormValues = z.infer<typeof formSchema>
 
 export function RegisterForm() {
     const [show, setShow] = useState(false)
-
+    const router = useRouter()
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -77,6 +79,7 @@ export function RegisterForm() {
         onSuccess: () => {
             toast.success("Account created successfully")
             form.reset()
+            router.push('/login')
         },
         onError: (error) => {
             toast.error(error.message)
