@@ -112,6 +112,7 @@ export function SideNav() {
                         alt="Taskly Logo"
                         width={100}
                         height={80}
+                        style={{ height: "auto" }}
                     />
 
                     {/* Mobile close button */}

@@ -36,7 +36,8 @@ import {
 
 import {
     useMutation,
-    useQuery
+    useQuery,
+    useQueryClient
 } from "@tanstack/react-query"
 
 import EditEpicAction from "@/actions/EditEpicAction"
@@ -60,6 +61,7 @@ export default function EditEpicsForm({
 }: EditProjectFormProps) {
 
     const router = useRouter()
+    const queryClient = useQueryClient()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -92,6 +94,8 @@ export default function EditEpicsForm({
 
         onSuccess: () => {
             toast.success("Epics updated successfully")
+            queryClient.invalidateQueries({ queryKey: ["epics", data?.project_id] })
+            queryClient.invalidateQueries({ queryKey: ["epic", epicId] })
 
             router.push(`/projects/${data.project_id}`)
         },

@@ -28,7 +28,7 @@ import {
     InputGroupText,
     InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import EditProjectAction from "@/actions/EditProjectAction"
 import GetProjectById from "@/actions/GetProjectById"
 import { Loader2 } from "lucide-react"
@@ -49,6 +49,7 @@ interface EditProjectFormProps {
 
 export function EditProjectForm({ projectId }: EditProjectFormProps) {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const { data: project, isLoading } = useQuery({
         queryKey: ["project", projectId],
@@ -67,6 +68,8 @@ export function EditProjectForm({ projectId }: EditProjectFormProps) {
         mutationFn: EditProjectAction,
         onSuccess: () => {
             toast.success("Project updated successfully");
+            queryClient.invalidateQueries({ queryKey: ["projects"] });
+            queryClient.invalidateQueries({ queryKey: ["project", projectId] });
             form.reset({
                 name: "",
                 description: "",
